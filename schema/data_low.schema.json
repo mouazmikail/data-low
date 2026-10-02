@@ -1,0 +1,102 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Data-Low — schéma d'un exercice (v2.0, tableau 2.6 du manuscrit)",
+  "description": "Format canonique du corpus Data-Low. Les alias v1 (id, serie, discipline, images, solution_ref, concepts, span, concept, rationale) sont acceptés à l'ingestion et normalisés par Low-Eval Kit (loweval.ingest_corpus), mais le fichier publié utilise exclusivement les noms v2 ci-dessous.",
+  "type": "object",
+  "required": [
+    "exercise_id",
+    "year",
+    "series",
+    "subject",
+    "statement",
+    "reference_solution",
+    "stem_concepts"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "exercise_id": {
+      "type": "string",
+      "description": "Identifiant canonique stable : TCD-<MATIERE>-<ANNEE>-<SERIE>-<NN> (ex. TCD-MATH-1995-C-01). Jamais réutilisé pour un autre contenu.",
+      "pattern": "^TCD-[A-Z]+-[0-9]{4}-[CDE]-[0-9]{2}$"
+    },
+    "year": {
+      "type": "integer",
+      "description": "Année de la session d'examen (ex. 1995)."
+    },
+    "series": {
+      "type": "string",
+      "enum": ["C", "D", "E"],
+      "description": "Série du baccalauréat tchadien."
+    },
+    "subject": {
+      "type": "string",
+      "description": "Matière : mathematiques, physique, svt…"
+    },
+    "source": {
+      "type": "string",
+      "description": "Provenance documentée (archive_officielle, manuel…)."
+    },
+    "statement": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Énoncé de l'exercice, OCR contrôlé (NFC, aplani)."
+    },
+    "assets": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Chemins des figures/schémas associés à l'énoncé."
+    },
+    "reference_solution": {
+      "type": "string",
+      "description": "Corrigé de référence validé. Chaîne vide tant que non annoté."
+    },
+    "stem_concepts": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Concepts STEM attendus (validés par la double annotation ; la pré-annotation automatique est une aide, pas une étiquette finale)."
+    },
+    "bloom_level": {
+      "type": "string",
+      "enum": ["connaitre", "comprendre", "appliquer", "analyser", "evaluer", "creer"],
+      "description": "Niveau de la taxonomie de Bloom (tableau 2.6)."
+    },
+    "annotations": {
+      "type": "array",
+      "description": "Erreurs relevées sur une copie d'élève (double annotation, κ ≥ 0,75).",
+      "items": {
+        "type": "object",
+        "required": ["error_type", "location", "diagnostic", "annotator"],
+        "properties": {
+          "error_type": {
+            "type": "string",
+            "enum": ["conceptuelle", "procedurale", "visuo-spatiale", "linguistique", "calculatoire"],
+            "description": "Famille de la taxonomie (tableau 2.4). La famille visuo-spatiale (κ = 0,74) porte une mention d'incertitude."
+          },
+          "location": {
+            "type": ["string", "null"],
+            "description": "Segment textuel ou zone visuelle localisée (alias v1 : span)."
+          },
+          "diagnostic": {
+            "type": ["string", "null"],
+            "description": "Justification pédagogique de l'annotateur (alias v1 : rationale)."
+          },
+          "annotator": {
+            "type": "string",
+            "description": "Identifiant de l'annotateur (ex. expert_1)."
+          },
+          "arbitre": {
+            "type": "integer",
+            "enum": [0, 1],
+            "default": 0,
+            "description": "1 = étiquette finale après arbitrage (requêtes de l'annexe B filtrent arbitre = 1)."
+          }
+        }
+      }
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "2.0",
+      "description": "Version du format. Une version future est refusée à l'ingestion (comparaison lexicale semver)."
+    }
+  }
+}
